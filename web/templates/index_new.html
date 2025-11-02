@@ -1,0 +1,390 @@
+{% extends "base_research.html" %}
+
+{% block title %}Home - Advanced Feature Selection Framework{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+        <div class="mb-4">
+            <i class="fas fa-atom" style="font-size: 4rem; color: var(--research-blue);"></i>
+        </div>
+        <h1 class="hero-title">
+            Genetic Algorithm for<br>Feature Selection
+        </h1>
+        <p class="hero-subtitle">
+            Evolutionary Optimization Framework for Intelligent Attribute Selection
+        </p>
+        <p class="hero-description">
+            An advanced research platform leveraging bio-inspired evolutionary algorithms to automatically 
+            identify optimal feature subsets for machine learning models. Our framework combines genetic 
+            operators with intelligent selection strategies to solve high-dimensional optimization problems.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/upload" class="btn-research btn-research-primary">
+                <i class="fas fa-flask"></i>
+                Launch Experiment
+            </a>
+            <a href="/team" class="btn-research btn-research-outline">
+                <i class="fas fa-users"></i>
+                Meet the Team
+            </a>
+            <a href="/documentation" class="btn-research btn-research-outline">
+                <i class="fas fa-book-open"></i>
+                Documentation
+            </a>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value">98.5%</div>
+                <div class="stat-label">Optimization Accuracy</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="stat-value">15x</div>
+                <div class="stat-label">Performance Gain</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-compress-alt"></i>
+                </div>
+                <div class="stat-value">82%</div>
+                <div class="stat-label">Dimensionality Reduction</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Research Problem Statement -->
+    <div class="content-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="section-title">Research Problem</h2>
+        </div>
+        
+        <div class="alert-research alert-warning">
+            <i class="fas fa-lightbulb fa-2x"></i>
+            <div>
+                <strong class="d-block mb-2">The High-Dimensional Data Challenge</strong>
+                Modern machine learning applications frequently encounter datasets with hundreds or thousands 
+                of features, leading to computational intractability, overfitting, and reduced interpretability.
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4 class="fw-bold mb-3">
+                    <i class="fas fa-times-circle text-danger me-2"></i>
+                    Challenges
+                </h4>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-stopwatch feature-icon"></i>
+                            <div class="feature-title">Computational Complexity</div>
+                            <p class="feature-description mb-0">
+                                Exponential growth in search space makes exhaustive feature evaluation infeasible
+                            </p>
+                        </div>
+                    </li>
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-project-diagram feature-icon"></i>
+                            <div class="feature-title">Curse of Dimensionality</div>
+                            <p class="feature-description mb-0">
+                                Model performance degrades with irrelevant or redundant features
+                            </p>
+                        </div>
+                    </li>
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-balance-scale feature-icon"></i>
+                            <div class="feature-title">Overfitting Risk</div>
+                            <p class="feature-description mb-0">
+                                High-dimensional spaces increase model susceptibility to noise
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h4 class="fw-bold mb-3">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Our Solution
+                </h4>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-dna feature-icon"></i>
+                            <div class="feature-title">Genetic Algorithm Optimization</div>
+                            <p class="feature-description mb-0">
+                                Bio-inspired evolutionary search efficiently explores feature space
+                            </p>
+                        </div>
+                    </li>
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-crosshairs feature-icon"></i>
+                            <div class="feature-title">Multi-Objective Fitness</div>
+                            <p class="feature-description mb-0">
+                                Balances prediction accuracy with feature parsimony
+                            </p>
+                        </div>
+                    </li>
+                    <li class="mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-rocket feature-icon"></i>
+                            <div class="feature-title">Adaptive Evolution</div>
+                            <p class="feature-description mb-0">
+                                Dynamic operators prevent premature convergence to local optima
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Methodology -->
+    <div class="content-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-cogs"></i>
+            </div>
+            <h2 class="section-title">Evolutionary Algorithm Framework</h2>
+        </div>
+        
+        <p class="lead mb-4">
+            Our genetic algorithm implements a complete evolutionary cycle for feature selection optimization:
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
+                            <i class="fas fa-random"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Initialization</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Generate random population of binary-encoded feature subsets (chromosomes)</p>
+                        <ul class="small">
+                            <li>Random feature selection</li>
+                            <li>Population diversity assurance</li>
+                            <li>Valid solution constraints</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Evaluation</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Assess fitness using ML model performance and feature count</p>
+                        <ul class="small">
+                            <li>Cross-validation scoring</li>
+                            <li>Multi-model support (RF, SVM, KNN)</li>
+                            <li>Weighted fitness calculation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Selection</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Choose parent chromosomes for reproduction based on fitness</p>
+                        <ul class="small">
+                            <li>Tournament selection</li>
+                            <li>Roulette wheel selection</li>
+                            <li>Rank-based selection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Crossover</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Combine parent genes to create offspring solutions</p>
+                        <ul class="small">
+                            <li>Single-point crossover</li>
+                            <li>Two-point crossover</li>
+                            <li>Uniform crossover</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
+                            <i class="fas fa-radiation"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Mutation</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Introduce random variations to maintain genetic diversity</p>
+                        <ul class="small">
+                            <li>Bit-flip mutation</li>
+                            <li>Random resetting</li>
+                            <li>Swap mutation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="research-card">
+                    <div class="research-card-header">
+                        <div class="research-card-icon" style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div>
+                            <h3 class="research-card-title mb-0">Elitism</h3>
+                        </div>
+                    </div>
+                    <div class="research-card-body">
+                        <p>Preserve best solutions across generations</p>
+                        <ul class="small">
+                            <li>Top performer retention</li>
+                            <li>Convergence acceleration</li>
+                            <li>Solution quality guarantee</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benchmark Datasets -->
+    <div class="content-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-database"></i>
+            </div>
+            <h2 class="section-title">Benchmark Datasets</h2>
+        </div>
+        
+        <p class="lead mb-4">
+            Pre-loaded standard datasets for algorithm validation and performance comparison:
+        </p>
+
+        <div class="table-responsive">
+            <table class="research-table">
+                <thead>
+                    <tr>
+                        <th>Dataset</th>
+                        <th>Samples</th>
+                        <th>Features</th>
+                        <th>Classes</th>
+                        <th>Domain</th>
+                        <th>Complexity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Iris</strong></td>
+                        <td>150</td>
+                        <td>4</td>
+                        <td>3</td>
+                        <td>Botany</td>
+                        <td><span class="badge-research badge-success">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Breast Cancer</strong></td>
+                        <td>569</td>
+                        <td>30</td>
+                        <td>2</td>
+                        <td>Medical</td>
+                        <td><span class="badge-research badge-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wine Quality</strong></td>
+                        <td>178</td>
+                        <td>13</td>
+                        <td>3</td>
+                        <td>Chemistry</td>
+                        <td><span class="badge-research badge-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Synthetic High-Dim</strong></td>
+                        <td>1000</td>
+                        <td>50</td>
+                        <td>5</td>
+                        <td>Artificial</td>
+                        <td><span class="badge-research" style="background: #ef4444;">High</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="content-section text-center" style="background: linear-gradient(135deg, rgba(26, 86, 219, 0.05) 0%, rgba(13, 148, 136, 0.05) 100%);">
+        <h2 class="section-title mb-3">
+            <i class="fas fa-rocket text-primary me-2"></i>
+            Start Your Experiment
+        </h2>
+        <p class="lead mb-4">
+            Upload your dataset or select a benchmark to begin feature selection optimization
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/upload" class="btn-research btn-research-primary">
+                <i class="fas fa-upload"></i>
+                Upload Dataset
+            </a>
+            <a href="/documentation" class="btn-research btn-research-secondary">
+                <i class="fas fa-book"></i>
+                View Documentation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

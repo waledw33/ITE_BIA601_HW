@@ -1,0 +1,550 @@
+{% extends "base_cyber.html" %}
+
+{% block title %}Comparison - GA Feature Selection{% endblock %}
+
+{% block extra_css %}
+<style>
+    .method-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        transition: all 0.3s;
+        background: white;
+    }
+    
+    .method-card:hover {
+        border-color: #4a90e2;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .method-card.winner {
+        border-color: #50c878;
+        background: linear-gradient(135deg, rgba(80, 200, 120, 0.1) 0%, rgba(80, 200, 120, 0.05) 100%);
+    }
+    
+    .winner-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #50c878;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    
+    .comparison-table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .best-score {
+        background: rgba(80, 200, 120, 0.2);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <h2 class="mb-4">
+        <i class="fas fa-balance-scale text-primary"></i> Method Comparison
+    </h2>
+
+    <p class="lead text-muted mb-4">
+        Comparing Genetic Algorithm results with traditional feature selection methods
+    </p>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="feature-card text-center">
+                <i class="fas fa-dna fa-2x text-primary mb-2"></i>
+                <h5>Genetic Algorithm</h5>
+                <p class="text-muted small">Evolutionary approach</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-card text-center">
+                <i class="fas fa-filter fa-2x text-info mb-2"></i>
+                <h5>Chi-Square</h5>
+                <p class="text-muted small">Statistical test</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-card text-center">
+                <i class="fas fa-project-diagram fa-2x text-success mb-2"></i>
+                <h5>Mutual Information</h5>
+                <p class="text-muted small">Information theory</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-card text-center">
+                <i class="fas fa-tree fa-2x text-warning mb-2"></i>
+                <h5>Random Forest</h5>
+                <p class="text-muted small">Importance ranking</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h4><i class="fas fa-table text-primary"></i> Performance Comparison</h4>
+                <p class="text-muted">Comparing performance metrics across different methods</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover comparison-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Method</th>
+                                <th>Features Selected</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-Score</th>
+                                <th>Time (sec)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparisonTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> Run comparison to see results
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Method Cards -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h4><i class="fas fa-microscope text-primary"></i> Detailed Analysis</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Genetic Algorithm -->
+        <div class="col-md-6 mb-4">
+            <div class="method-card position-relative">
+                <h5><i class="fas fa-dna text-primary"></i> Genetic Algorithm</h5>
+                <p class="text-muted small">Bio-inspired evolutionary optimization</p>
+                
+                <h6 class="mt-3">Advantages:</h6>
+                <ul class="small">
+                    <li>Explores large search space effectively</li>
+                    <li>Considers feature interactions</li>
+                    <li>Avoids local optima</li>
+                    <li>Flexible fitness functions</li>
+                </ul>
+                
+                <h6>Disadvantages:</h6>
+                <ul class="small">
+                    <li>Computationally expensive</li>
+                    <li>Results may vary (stochastic)</li>
+                    <li>Requires parameter tuning</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <span class="badge bg-primary">Accuracy: <span id="gaAccBadge">-</span></span>
+                    <span class="badge bg-info">Features: <span id="gaFeatBadge">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi-Square -->
+        <div class="col-md-6 mb-4">
+            <div class="method-card">
+                <h5><i class="fas fa-filter text-info"></i> Chi-Square Test</h5>
+                <p class="text-muted small">Statistical hypothesis testing</p>
+                
+                <h6 class="mt-3">Advantages:</h6>
+                <ul class="small">
+                    <li>Fast and efficient</li>
+                    <li>Easy to interpret</li>
+                    <li>Well-established statistical method</li>
+                    <li>Good for categorical data</li>
+                </ul>
+                
+                <h6>Disadvantages:</h6>
+                <ul class="small">
+                    <li>Assumes feature independence</li>
+                    <li>May miss feature interactions</li>
+                    <li>Sensitive to data distribution</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <span class="badge bg-primary">Accuracy: <span id="chiAccBadge">-</span></span>
+                    <span class="badge bg-info">Features: <span id="chiFeatBadge">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mutual Information -->
+        <div class="col-md-6 mb-4">
+            <div class="method-card">
+                <h5><i class="fas fa-project-diagram text-success"></i> Mutual Information</h5>
+                <p class="text-muted small">Information-theoretic approach</p>
+                
+                <h6 class="mt-3">Advantages:</h6>
+                <ul class="small">
+                    <li>Captures non-linear relationships</li>
+                    <li>Distribution-free</li>
+                    <li>Measures dependency effectively</li>
+                    <li>Works with continuous data</li>
+                </ul>
+                
+                <h6>Disadvantages:</h6>
+                <ul class="small">
+                    <li>Computationally intensive</li>
+                    <li>Requires careful binning</li>
+                    <li>May overfit with small datasets</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <span class="badge bg-primary">Accuracy: <span id="miAccBadge">-</span></span>
+                    <span class="badge bg-info">Features: <span id="miFeatBadge">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Random Forest -->
+        <div class="col-md-6 mb-4">
+            <div class="method-card">
+                <h5><i class="fas fa-tree text-warning"></i> Random Forest Importance</h5>
+                <p class="text-muted small">Tree-based feature ranking</p>
+                
+                <h6 class="mt-3">Advantages:</h6>
+                <ul class="small">
+                    <li>Handles non-linear relationships</li>
+                    <li>Built-in feature importance</li>
+                    <li>Robust to outliers</li>
+                    <li>Captures interactions</li>
+                </ul>
+                
+                <h6>Disadvantages:</h6>
+                <ul class="small">
+                    <li>Biased toward high-cardinality features</li>
+                    <li>Black-box approach</li>
+                    <li>Memory intensive</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <span class="badge bg-primary">Accuracy: <span id="rfAccBadge">-</span></span>
+                    <span class="badge bg-info">Features: <span id="rfFeatBadge">-</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Comparison -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h4><i class="fas fa-chart-bar text-primary"></i> Visual Comparison</h4>
+                <canvas id="comparisonChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistical Analysis -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h4><i class="fas fa-calculator text-primary"></i> Statistical Analysis</h4>
+                <p class="text-muted">Statistical significance of differences between methods</p>
+                
+                <div id="statisticalResults">
+                    <p class="text-center text-muted">
+                        <i class="fas fa-info-circle"></i> Statistical analysis will be displayed here after comparison
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-primary btn-lg me-2" id="runComparisonBtn">
+                <i class="fas fa-play"></i> Run Comparison
+            </button>
+            <button class="btn btn-success btn-lg me-2" id="exportComparisonBtn">
+                <i class="fas fa-download"></i> Export Report
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="location.href='/upload'">
+                <i class="fas fa-arrow-left"></i> Back to Upload
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+let comparisonChart;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeComparisonChart();
+});
+
+function initializeComparisonChart() {
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Genetic Algorithm', 'Chi-Square', 'Mutual Information', 'Random Forest'],
+            datasets: [{
+                label: 'Accuracy',
+                data: [0, 0, 0, 0],
+                backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                borderColor: '#4a90e2',
+                borderWidth: 2
+            }, {
+                label: 'F1-Score',
+                data: [0, 0, 0, 0],
+                backgroundColor: 'rgba(80, 200, 120, 0.7)',
+                borderColor: '#50c878',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Performance Metrics Comparison'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Run comparison button
+document.getElementById('runComparisonBtn').addEventListener('click', () => {
+    runComparison();
+});
+
+function runComparison() {
+    // Get dataset info from sessionStorage
+    const datasetInfoStr = sessionStorage.getItem('datasetInfo');
+    const gaResultsStr = sessionStorage.getItem('gaResults');
+    
+    if (!datasetInfoStr) {
+        alert('Please run genetic algorithm first from the Upload page');
+        return;
+    }
+    
+    // Show loading state
+    document.getElementById('comparisonTableBody').innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Running comparison analysis...
+            </td>
+        </tr>
+    `;
+    
+    try {
+        const datasetInfo = JSON.parse(datasetInfoStr);
+        const gaResults = gaResultsStr ? JSON.parse(gaResultsStr) : null;
+        
+        // Prepare request data
+        const requestData = {
+            filepath: datasetInfo.filepath,
+            target_column: 'target',
+            k_features: gaResults ? gaResults.n_selected_features : 10
+        };
+        
+        fetch('/api/comparison', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayComparisonResults(data, gaResults);
+            } else {
+                alert('Error: ' + data.error);
+                document.getElementById('comparisonTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            Error: ${data.error}
+                        </td>
+                    </tr>
+                `;
+            }
+        })
+        .catch(error => {
+            alert('Comparison failed: ' + error);
+            document.getElementById('comparisonTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger">
+                        Error: ${error.message}
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+function displayComparisonResults(data, gaResults) {
+    const results = data.traditional_results;
+    let tableHtml = '';
+    
+    // Add GA results first if available
+    if (gaResults) {
+        const gaRow = `
+            <tr class="table-success">
+                <td><strong>Genetic Algorithm</strong></td>
+                <td>${gaResults.n_selected_features}</td>
+                <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+                <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+                <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+                <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+                <td>~${(gaResults.generation_history.best_fitness.length * 2).toFixed(1)}s</td>
+            </tr>
+        `;
+        tableHtml += gaRow;
+    }
+    
+    // Add traditional methods
+    const methodNames = {
+        'chi_square': 'Chi-Square Test',
+        'anova_f': 'ANOVA F-Test',
+        'mutual_info': 'Mutual Information',
+        'rf_importance': 'Random Forest Importance'
+    };
+    
+    for (const [key, method] of Object.entries(results)) {
+        if (method.error) {
+            tableHtml += `
+                <tr>
+                    <td>${methodNames[key] || key}</td>
+                    <td colspan="6" class="text-danger">Error: ${method.error}</td>
+                </tr>
+            `;
+        } else {
+            tableHtml += `
+                <tr>
+                    <td>${methodNames[key] || key}</td>
+                    <td>${method.n_features}</td>
+                    <td>${(method.accuracy * 100).toFixed(2)}%</td>
+                    <td>${(method.precision * 100).toFixed(2)}%</td>
+                    <td>${(method.recall * 100).toFixed(2)}%</td>
+                    <td>${(method.f1_score * 100).toFixed(2)}%</td>
+                    <td>${method.time.toFixed(2)}s</td>
+                </tr>
+            `;
+        }
+    }
+    
+    document.getElementById('comparisonTableBody').innerHTML = tableHtml;
+    
+    // Update chart
+    updateComparisonChart(results, gaResults);
+    
+    // Update badge displays
+    if (gaResults) {
+        document.getElementById('gaAccBadge').textContent = (gaResults.accuracy * 100).toFixed(1) + '%';
+        document.getElementById('gaFeatBadge').textContent = gaResults.n_selected_features;
+    }
+    
+    if (results.chi_square && !results.chi_square.error) {
+        document.getElementById('chiAccBadge').textContent = (results.chi_square.accuracy * 100).toFixed(1) + '%';
+        document.getElementById('chiFeatBadge').textContent = results.chi_square.n_features;
+    }
+    
+    if (results.mutual_info && !results.mutual_info.error) {
+        document.getElementById('miAccBadge').textContent = (results.mutual_info.accuracy * 100).toFixed(1) + '%';
+        document.getElementById('miFeatBadge').textContent = results.mutual_info.n_features;
+    }
+    
+    if (results.rf_importance && !results.rf_importance.error) {
+        document.getElementById('rfAccBadge').textContent = (results.rf_importance.accuracy * 100).toFixed(1) + '%';
+        document.getElementById('rfFeatBadge').textContent = results.rf_importance.n_features;
+    }
+    
+    // Show success notification
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show';
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '10000';
+    notification.innerHTML = `
+        Comparison completed successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function updateComparisonChart(results, gaResults) {
+    const labels = [];
+    const accuracyData = [];
+    const f1Data = [];
+    
+    // Add GA if available
+    if (gaResults) {
+        labels.push('Genetic Algorithm');
+        accuracyData.push(gaResults.accuracy);
+        f1Data.push(gaResults.accuracy);  // Using accuracy as approximation
+    }
+    
+    // Add traditional methods
+    const methodNames = {
+        'chi_square': 'Chi-Square',
+        'anova_f': 'ANOVA',
+        'mutual_info': 'Mutual Info',
+        'rf_importance': 'Random Forest'
+    };
+    
+    for (const [key, method] of Object.entries(results)) {
+        if (!method.error) {
+            labels.push(methodNames[key] || key);
+            accuracyData.push(method.accuracy);
+            f1Data.push(method.f1_score);
+        }
+    }
+    
+    // Update chart
+    comparisonChart.data.labels = labels;
+    comparisonChart.data.datasets[0].data = accuracyData;
+    comparisonChart.data.datasets[1].data = f1Data;
+    comparisonChart.update();
+}
+
+// Export comparison button
+document.getElementById('exportComparisonBtn').addEventListener('click', () => {
+    // TODO: Implement export functionality
+    alert('Export functionality will be implemented');
+});
+</script>
+{% endblock %}
+

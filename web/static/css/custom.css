@@ -1,0 +1,708 @@
+/*
+FeatureHunter Pro - Custom Stylesheet
+AI-Powered Feature Selection Platform
+Created by: Design Team Alpha
+Build: 3.7 - Ultra Modern Edition
+*/
+
+/* الألوان الأساسية - Custom color palette */
+:root {
+    --main-shade: #8b5cf6;
+    --second-shade: #06b6d4;
+    --pop-color: #f59e0b;
+    --ok-green: #10b981;
+    --alert-red: #ef4444;
+    --warning-yellow: #fbbf24;
+    --bg-dark: #18181b;
+    --bg-darker: #0a0a0c;
+    --text-light: #fafafa;
+    --gradient-purple: #a855f7;
+    --gradient-cyan: #22d3ee;
+    --gradient-amber: #fcd34d;
+    --shadow-glow: rgba(139, 92, 246, 0.25);
+    --main-txt: #27272a;
+    --sub-txt: #71717a;
+}
+
+/* الصفحة الأساسية - Deep space theme يا معلم */
+body {
+    font-family: 'Segoe UI', 'Cairo', 'Tajawal', sans-serif;
+    background: var(--bg-darker);
+    background-image: 
+        radial-gradient(circle at 15% 45%, rgba(139, 92, 246, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 50% 25%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+    min-height: 100vh;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* خلفية النجوم المتحركة - Stellar background effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1.5px 1.5px at 25% 35%, white, transparent),
+        radial-gradient(2px 2px at 55% 65%, white, transparent),
+        radial-gradient(1px 1px at 45% 45%, white, transparent),
+        radial-gradient(1.5px 1.5px at 75% 15%, white, transparent),
+        radial-gradient(2px 2px at 85% 55%, white, transparent);
+    background-size: 250% 250%;
+    opacity: 0.07;
+    animation: twinkling 70s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes twinkling {
+    from {
+        background-position: 0 0, 50px 70px, 140px 280px, 80px 110px, 320px 160px;
+    }
+    to {
+        background-position: 550px 1100px, 450px 450px, 350px 350px, 250px 250px, 650px 850px;
+    }
+}
+
+/* دايرة التحميل - Loading wheel */
+.spinner {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border: 3.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    border-top-color: var(--main-shade);
+    animation: spinning 0.9s ease-in-out infinite;
+}
+
+@keyframes spinning {
+    to { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* الكروت - Glass morphism design */
+.card {
+    border: none;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(25px) saturate(150%);
+    box-shadow: 
+        0 10px 35px 0 var(--shadow-glow),
+        0 0 0 1.5px rgba(255, 255, 255, 0.2) inset;
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+.card:hover {
+    box-shadow: 
+        0 18px 50px 0 rgba(139, 92, 246, 0.35),
+        0 0 0 2px rgba(139, 92, 246, 0.25) inset;
+    transform: translateY(-10px) scale(1.025);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--main-shade), var(--gradient-purple), var(--second-shade));
+    color: white;
+    border-radius: 28px 28px 0 0 !important;
+    font-weight: 700;
+    padding: 22px 28px;
+    text-transform: uppercase;
+    letter-spacing: 2.2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
+    transform: skewX(-15deg);
+}
+
+/* الأزرار - Glowing buttons يا عم */
+.btn-custom {
+    border-radius: 45px;
+    padding: 15px 38px;
+    font-weight: 700;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 2.5px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    font-size: 0.92rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 28px rgba(139, 92, 246, 0.45);
+}
+
+.btn-custom::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-custom:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-custom:hover {
+    transform: translateY(-6px) scale(1.06);
+    box-shadow: 
+        0 18px 45px rgba(139, 92, 246, 0.65),
+        0 0 35px rgba(139, 92, 246, 0.45),
+        inset 0 0 25px rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--main-shade), var(--gradient-purple), var(--pop-color));
+    background-size: 220% 220%;
+    animation: shiftingGradient 3.5s ease infinite;
+}
+
+.btn-success-custom {
+    background: linear-gradient(135deg, var(--ok-green), var(--second-shade), #14b8a6);
+    background-size: 220% 220%;
+    animation: shiftingGradient 3.5s ease infinite;
+}
+
+@keyframes shiftingGradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* شريط التقدم - Animated progress bar */
+.progress-custom {
+    height: 32px;
+    border-radius: 45px;
+    background-color: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 2.5px 10px rgba(0, 0, 0, 0.12);
+    overflow: visible;
+    position: relative;
+}
+
+.progress-bar-custom {
+    background: linear-gradient(90deg, var(--main-shade), var(--gradient-purple), var(--pop-color), var(--second-shade));
+    background-size: 320% 320%;
+    border-radius: 45px;
+    transition: width 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+        0 5px 18px rgba(139, 92, 246, 0.55),
+        inset 0 -2.5px 12px rgba(0, 0, 0, 0.25);
+    animation: shiftingGradient 2.5s ease infinite;
+    position: relative;
+}
+
+.progress-bar-custom::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+    border-radius: 50px 50px 0 0;
+}
+
+/* الشارات - Badge styles with glow */
+.badge-custom {
+    padding: 11px 22px;
+    border-radius: 45px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    background: linear-gradient(135deg, var(--main-shade), var(--gradient-purple));
+    box-shadow: 
+        0 6px 18px rgba(139, 92, 246, 0.35),
+        0 0 25px rgba(139, 92, 246, 0.25);
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+    animation: pulsingBadge 2.2s ease-in-out infinite;
+}
+
+@keyframes pulsingBadge {
+    0%, 100% {
+        box-shadow: 
+            0 6px 18px rgba(139, 92, 246, 0.35),
+            0 0 25px rgba(139, 92, 246, 0.25);
+    }
+    50% {
+        box-shadow: 
+            0 10px 30px rgba(139, 92, 246, 0.55),
+            0 0 45px rgba(139, 92, 246, 0.45);
+    }
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    padding: 20px;
+}
+
+/* الجداول - Modern table styling */
+.table-custom {
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.table-custom thead {
+    background: linear-gradient(135deg, var(--main-shade), var(--gradient-purple), var(--pop-color));
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+}
+
+.table-custom thead th {
+    padding: 20px;
+    border: none;
+}
+
+.table-custom tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table-custom tbody tr:hover {
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.12));
+    transform: scale(1.015);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.25);
+}
+
+.table-custom tbody td {
+    padding: 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Alert Styles */
+.alert-custom {
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+
+.alert-info-custom {
+    background-color: #d1ecf1;
+    border-left-color: #0c5460;
+}
+
+.alert-success-custom {
+    background-color: #d4edda;
+    border-left-color: #155724;
+}
+
+.alert-warning-custom {
+    background-color: #fff3cd;
+    border-left-color: #856404;
+}
+
+.alert-danger-custom {
+    background-color: #f8d7da;
+    border-left-color: #721c24;
+}
+
+/* Upload Area */
+.upload-area {
+    transition: all 0.3s ease;
+}
+
+.upload-area.dragover {
+    background-color: #d4e4f7 !important;
+    border-color: #357abd !important;
+    transform: scale(1.02);
+}
+
+/* شارات الميزات - Neon feature tags */
+.feature-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--main-shade), var(--gradient-purple), var(--pop-color));
+    background-size: 210% 210%;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 45px;
+    margin: 10px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+        0 10px 28px rgba(139, 92, 246, 0.45),
+        0 0 35px rgba(139, 92, 246, 0.25) inset;
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    animation: shiftingGradient 3.5s ease infinite;
+}
+
+.feature-badge:hover {
+    transform: translateY(-7px) scale(1.12);
+    box-shadow: 
+        0 18px 45px rgba(139, 92, 246, 0.65),
+        0 0 55px rgba(139, 92, 246, 0.45) inset,
+        0 0 65px rgba(139, 92, 246, 0.35);
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+    
+    .feature-badge {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        margin: 4px;
+    }
+    
+    .btn-custom {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #357abd;
+}
+
+/* Team Member Cards - Holographic Effect */
+.team-member-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 30px;
+    padding: 30px;
+    height: 100%;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        8px 8px 20px rgba(0, 0, 0, 0.08),
+        -8px -8px 20px rgba(255, 255, 255, 0.9);
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.team-member-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 107, 107, 0.2),
+        rgba(78, 205, 196, 0.2),
+        transparent
+    );
+    transition: left 0.8s;
+}
+
+.team-member-card:hover::before {
+    left: 100%;
+}
+
+.team-member-card:hover {
+    transform: translateY(-15px) scale(1.05) rotateZ(2deg);
+    box-shadow: 
+        15px 15px 40px rgba(238, 9, 121, 0.2),
+        -10px -10px 30px rgba(255, 255, 255, 1),
+        0 0 60px rgba(78, 205, 196, 0.3);
+    border-color: var(--primary-color);
+    background: linear-gradient(145deg, #ffffff 0%, #fff5f5 100%);
+}
+
+.team-member-card h5 {
+    color: var(--dark-color);
+    font-weight: 900;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.team-member-card h5::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
+}
+
+.team-member-card ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 20px;
+}
+
+.team-member-card ul li {
+    padding: 8px 0 8px 30px;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.team-member-card ul li::before {
+    content: "⚡";
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation: pulse 2s infinite;
+}
+
+.team-member-card:hover ul li {
+    color: var(--text-primary);
+    padding-left: 35px;
+}
+
+/* Feature Card - Advanced 3D Effect */
+.feature-card {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 25px;
+    padding: 35px;
+    margin-bottom: 25px;
+    box-shadow: 
+        12px 12px 24px rgba(0, 0, 0, 0.08),
+        -12px -12px 24px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        from 0deg,
+        transparent,
+        var(--primary-color),
+        transparent 30%
+    );
+    animation: rotate 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 23px;
+    z-index: 0;
+}
+
+.feature-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) rotateX(5deg);
+    box-shadow: 
+        20px 20px 40px rgba(238, 9, 121, 0.15),
+        -5px -5px 15px rgba(255, 255, 255, 0.9),
+        0 0 50px rgba(78, 205, 196, 0.2);
+    border-color: var(--primary-color);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+@keyframes rotate {
+    100% { transform: rotate(360deg); }
+}
+
+/* الحاوية الرئيسية - Main glass container */
+.main-container {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(35px) saturate(170%);
+    border-radius: 38px;
+    padding: 55px;
+    margin: 45px auto;
+    max-width: 1480px;
+    box-shadow: 
+        0 35px 95px var(--shadow-glow),
+        0 0 0 1.5px rgba(255, 255, 255, 0.45) inset,
+        0 0 110px rgba(6, 182, 212, 0.12);
+    position: relative;
+    z-index: 1;
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+}
+
+.main-container::before {
+    content: '';
+    position: absolute;
+    top: -3.5px;
+    left: -3.5px;
+    right: -3.5px;
+    bottom: -3.5px;
+    background: linear-gradient(135deg, 
+        var(--main-shade), 
+        var(--gradient-purple), 
+        var(--second-shade),
+        var(--pop-color));
+    border-radius: 42px;
+    z-index: -1;
+    opacity: 0.35;
+    filter: blur(18px);
+    animation: glowingBorder 4.5s ease-in-out infinite;
+}
+
+@keyframes glowingBorder {
+    0%, 100% { opacity: 0.35; filter: blur(18px); }
+    50% { opacity: 0.65; filter: blur(24px); }
+}
+
+.main-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 38px;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        transparent 50%,
+        rgba(6, 182, 212, 0.06) 100%
+    );
+    pointer-events: none;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}
+

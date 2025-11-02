@@ -1,0 +1,457 @@
+{% extends "base_research.html" %}
+
+{% block title %}Experiment Setup - Advanced Feature Selection Framework{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-zone {
+        border: 3px dashed var(--gray-300);
+        border-radius: var(--radius-xl);
+        padding: 4rem 2rem;
+        text-align: center;
+        background: var(--bg-secondary);
+        cursor: pointer;
+        transition: all var(--transition-base);
+    }
+    
+    .upload-zone:hover {
+        border-color: var(--research-blue);
+        background: white;
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .upload-zone.dragover {
+        border-color: var(--research-blue);
+        background: rgba(26, 86, 219, 0.05);
+        border-width: 4px;
+    }
+    
+    .config-panel {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 2rem;
+    }
+    
+    .param-card {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        border-left: 4px solid var(--research-blue);
+        margin-bottom: 1.5rem;
+    }
+    
+    .param-label {
+        font-weight: 600;
+        color: var(--research-navy);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .param-description {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid var(--gray-300);
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all var(--transition-base);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--research-blue);
+        box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.1);
+        outline: none;
+    }
+    
+    .range-value {
+        display: inline-block;
+        background: var(--research-blue);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
+    .progress-container {
+        display: none;
+        margin-top: 2rem;
+    }
+    
+    .progress-bar {
+        height: 40px;
+        border-radius: var(--radius-lg);
+        background: var(--gray-200);
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--research-blue) 0%, var(--research-cyan) 100%);
+        width: 0%;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="hero-section text-center">
+        <div class="section-header justify-content-center border-0">
+            <div class="section-icon">
+                <i class="fas fa-flask"></i>
+            </div>
+            <h1 class="section-title">Experiment Setup</h1>
+        </div>
+        <p class="hero-description">
+            Configure and execute feature selection experiments using genetic algorithms.
+            Upload your dataset, adjust algorithm parameters, and launch optimization.
+        </p>
+    </div>
+
+    <div class="row">
+        <!-- Dataset Upload Section -->
+        <div class="col-lg-6">
+            <div class="config-panel">
+                <h3 class="mb-4">
+                    <i class="fas fa-database text-primary me-2"></i>
+                    Dataset Upload
+                </h3>
+                
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                    <h4>Drop Dataset Here</h4>
+                    <p class="text-secondary">or click to browse files</p>
+                    <p class="small text-muted">Supported formats: CSV, Excel (.xlsx, .xls)</p>
+                    <input type="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls">
+                </div>
+
+                <div id="fileInfo" class="mt-3" style="display: none;">
+                    <div class="alert-research alert-success">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                        <div>
+                            <strong class="d-block mb-1">File Loaded Successfully</strong>
+                            <p class="mb-0" id="fileDetails"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Datasets -->
+                <div class="mt-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-server text-primary me-2"></i>
+                        Or Select Benchmark Dataset
+                    </h5>
+                    <select class="form-select" id="sampleDataset">
+                        <option value="">Choose a sample dataset...</option>
+                        <option value="sample_datasets/iris.csv">Iris (150 samples, 4 features)</option>
+                        <option value="sample_datasets/breast_cancer.csv">Breast Cancer (569 samples, 30 features)</option>
+                        <option value="sample_datasets/wine.csv">Wine Quality (178 samples, 13 features)</option>
+                        <option value="sample_datasets/synthetic_high_dim.csv">Synthetic High-Dim (1000 samples, 50 features)</option>
+                    </select>
+                </div>
+
+                <!-- Target Column Selection -->
+                <div class="mt-4" id="targetColumnSection" style="display: none;">
+                    <label class="param-label">
+                        <i class="fas fa-bullseye me-2"></i>
+                        Target Column
+                    </label>
+                    <select class="form-select" id="targetColumn">
+                        <option value="">Select target column...</option>
+                    </select>
+                    <p class="param-description">
+                        Choose the column that contains the classification labels
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithm Configuration -->
+        <div class="col-lg-6">
+            <div class="config-panel">
+                <h3 class="mb-4">
+                    <i class="fas fa-cogs text-primary me-2"></i>
+                    Algorithm Parameters
+                </h3>
+
+                <!-- Population Size -->
+                <div class="param-card">
+                    <label class="param-label" for="populationSize">
+                        Population Size: <span class="range-value" id="popValue">50</span>
+                    </label>
+                    <input type="range" class="form-range" id="populationSize" 
+                           min="20" max="200" step="10" value="50">
+                    <p class="param-description">
+                        Number of candidate solutions in each generation
+                    </p>
+                </div>
+
+                <!-- Generations -->
+                <div class="param-card">
+                    <label class="param-label" for="generations">
+                        Generations: <span class="range-value" id="genValue">100</span>
+                    </label>
+                    <input type="range" class="form-range" id="generations" 
+                           min="50" max="500" step="50" value="100">
+                    <p class="param-description">
+                        Number of evolutionary cycles to execute
+                    </p>
+                </div>
+
+                <!-- Crossover Rate -->
+                <div class="param-card">
+                    <label class="param-label" for="crossoverRate">
+                        Crossover Rate: <span class="range-value" id="crossValue">0.8</span>
+                    </label>
+                    <input type="range" class="form-range" id="crossoverRate" 
+                           min="0.5" max="1.0" step="0.05" value="0.8">
+                    <p class="param-description">
+                        Probability of parent genes recombination
+                    </p>
+                </div>
+
+                <!-- Mutation Rate -->
+                <div class="param-card">
+                    <label class="param-label" for="mutationRate">
+                        Mutation Rate: <span class="range-value" id="mutValue">0.1</span>
+                    </label>
+                    <input type="range" class="form-range" id="mutationRate" 
+                           min="0.01" max="0.5" step="0.01" value="0.1">
+                    <p class="param-description">
+                        Probability of random gene modifications
+                    </p>
+                </div>
+
+                <!-- ML Model Selection -->
+                <div class="param-card">
+                    <label class="param-label" for="mlModel">
+                        <i class="fas fa-brain me-2"></i>
+                        Machine Learning Model
+                    </label>
+                    <select class="form-select" id="mlModel">
+                        <option value="random_forest">Random Forest</option>
+                        <option value="svm">Support Vector Machine</option>
+                        <option value="knn">K-Nearest Neighbors</option>
+                    </select>
+                    <p class="param-description">
+                        Model used for fitness evaluation
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Launch Button -->
+    <div class="text-center mt-4 mb-5">
+        <button class="btn-research btn-research-primary" id="runButton" 
+                style="font-size: 1.2rem; padding: 1rem 3rem;" disabled>
+            <i class="fas fa-rocket me-2"></i>
+            Launch Genetic Algorithm
+        </button>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-container" id="progressContainer">
+        <div class="config-panel">
+            <h3 class="mb-4 text-center">
+                <i class="fas fa-spinner fa-spin text-primary me-2"></i>
+                Optimization in Progress
+            </h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <p class="text-center mt-3 text-secondary" id="progressStatus">
+                Initializing genetic algorithm...
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let uploadedFile = null;
+    let fileColumns = [];
+
+    // Range sliders update
+    $('#populationSize').on('input', function() {
+        $('#popValue').text($(this).val());
+    });
+
+    $('#generations').on('input', function() {
+        $('#genValue').text($(this).val());
+    });
+
+    $('#crossoverRate').on('input', function() {
+        $('#crossValue').text(parseFloat($(this).val()).toFixed(2));
+    });
+
+    $('#mutationRate').on('input', function() {
+        $('#mutValue').text(parseFloat($(this).val()).toFixed(2));
+    });
+
+    // File upload handling
+    $('#uploadZone').click(function() {
+        $('#fileInput').click();
+    });
+
+    $('#fileInput').change(function() {
+        if (this.files && this.files[0]) {
+            uploadFile(this.files[0]);
+        }
+    });
+
+    // Drag and drop
+    $('#uploadZone').on('dragover', function(e) {
+        e.preventDefault();
+        $(this).addClass('dragover');
+    });
+
+    $('#uploadZone').on('dragleave', function(e) {
+        e.preventDefault();
+        $(this).removeClass('dragover');
+    });
+
+    $('#uploadZone').on('drop', function(e) {
+        e.preventDefault();
+        $(this).removeClass('dragover');
+        if (e.originalEvent.dataTransfer.files.length) {
+            uploadFile(e.originalEvent.dataTransfer.files[0]);
+        }
+    });
+
+    // Sample dataset selection
+    $('#sampleDataset').change(function() {
+        const filepath = $(this).val();
+        if (filepath) {
+            loadSampleDataset(filepath);
+        }
+    });
+
+    function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        $.ajax({
+            url: '/api/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                uploadedFile = response.filepath;
+                fileColumns = response.features;
+                displayFileInfo(response);
+                populateTargetColumn(response.features);
+                $('#runButton').prop('disabled', false);
+            },
+            error: function(xhr) {
+                alert('Error uploading file: ' + xhr.responseJSON.error);
+            }
+        });
+    }
+
+    function loadSampleDataset(filepath) {
+        uploadedFile = filepath;
+        // Load sample dataset info (simplified)
+        $.ajax({
+            url: '/api/datasets',
+            success: function(response) {
+                // Would need to implement proper metadata loading
+                $('#fileInfo').show();
+                $('#fileDetails').html(`<strong>Sample Dataset:</strong> ${filepath.split('/').pop()}`);
+                $('#targetColumnSection').show();
+                // For sample datasets, we'd need to know the target column ahead of time
+                // This is a placeholder
+                $('#targetColumn').html('<option value="target">target</option>');
+                $('#runButton').prop('disabled', false);
+            }
+        });
+    }
+
+    function displayFileInfo(data) {
+        $('#fileInfo').show();
+        $('#fileDetails').html(
+            `<strong>Filename:</strong> ${data.filename}<br>` +
+            `<strong>Samples:</strong> ${data.rows} | <strong>Features:</strong> ${data.columns}`
+        );
+    }
+
+    function populateTargetColumn(columns) {
+        $('#targetColumnSection').show();
+        $('#targetColumn').empty().append('<option value="">Select target column...</option>');
+        columns.forEach(col => {
+            $('#targetColumn').append(`<option value="${col}">${col}</option>`);
+        });
+    }
+
+    // Run GA
+    $('#runButton').click(function() {
+        const targetColumn = $('#targetColumn').val();
+        if (!targetColumn) {
+            alert('Please select a target column');
+            return;
+        }
+
+        const params = {
+            filepath: uploadedFile,
+            target_column: targetColumn,
+            population_size: parseInt($('#populationSize').val()),
+            generations: parseInt($('#generations').val()),
+            crossover_rate: parseFloat($('#crossoverRate').val()),
+            mutation_rate: parseFloat($('#mutationRate').val()),
+            model_type: $('#mlModel').val()
+        };
+
+        $('#progressContainer').show();
+        $('#runButton').prop('disabled', true);
+
+        $.ajax({
+            url: '/api/run-ga',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(params),
+            timeout: 300000, // 5 minutes timeout
+            success: function(response) {
+                console.log('GA completed successfully:', response);
+                // Store results in sessionStorage
+                sessionStorage.setItem('gaResults', JSON.stringify(response));
+                // Redirect to results page
+                window.location.href = '/results';
+            },
+            error: function(xhr, status, error) {
+                console.error('Error details:', xhr, status, error);
+                let errorMsg = 'Unknown error';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                } else if (status === 'timeout') {
+                    errorMsg = 'Request timeout - operation took too long';
+                } else if (xhr.responseText) {
+                    errorMsg = xhr.responseText;
+                }
+                alert('Error running GA: ' + errorMsg);
+                $('#progressContainer').hide();
+                $('#runButton').prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

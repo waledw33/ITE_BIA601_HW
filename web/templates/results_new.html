@@ -1,0 +1,464 @@
+{% extends "base_research.html" %}
+
+{% block title %}Results - Advanced Feature Selection Framework{% endblock %}
+
+{% block extra_css %}
+<style>
+    .results-header {
+        background: linear-gradient(135deg, var(--research-blue) 0%, var(--research-cyan) 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: var(--radius-2xl);
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .metric-box {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        border: 2px solid var(--gray-200);
+        transition: all var(--transition-base);
+    }
+    
+    .metric-box:hover {
+        transform: translateY(-6px);
+        border-color: var(--research-blue);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .metric-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--research-blue) 0%, var(--research-cyan) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--research-navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .feature-badge {
+        display: inline-block;
+        background: white;
+        color: var(--research-blue);
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--radius-lg);
+        margin: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border: 2px solid var(--research-blue);
+        transition: all var(--transition-base);
+    }
+    
+    .feature-badge:hover {
+        background: var(--research-blue);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        border: 1px solid var(--gray-200);
+    }
+    
+    .chart-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--research-navy);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Results Header -->
+    <div class="results-header text-center">
+        <i class="fas fa-trophy fa-4x mb-3" style="opacity: 0.9;"></i>
+        <h1 class="mb-3" style="font-size: 2.5rem; font-weight: 800;">
+            Optimization Complete
+        </h1>
+        <p class="mb-0" style="font-size: 1.2rem; opacity: 0.95;">
+            Genetic Algorithm successfully identified optimal feature subset
+        </p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="metric-icon" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="metric-value" id="fitnessScore">-</div>
+                <div class="metric-label">Fitness Score</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="metric-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="metric-value" id="accuracyScore">-</div>
+                <div class="metric-label">Accuracy</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="metric-icon" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
+                    <i class="fas fa-filter"></i>
+                </div>
+                <div class="metric-value" id="featuresSelected">-</div>
+                <div class="metric-label">Features Selected</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="metric-icon" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
+                    <i class="fas fa-compress-alt"></i>
+                </div>
+                <div class="metric-value" id="reductionPercent">-</div>
+                <div class="metric-label">Reduction</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Features -->
+    <div class="content-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-list-check"></i>
+            </div>
+            <h2 class="section-title">Selected Features</h2>
+        </div>
+        <p class="lead mb-4">
+            The following features were identified as optimal for model training:
+        </p>
+        <div id="selectedFeaturesList" class="text-center">
+            <!-- Features will be populated here -->
+        </div>
+    </div>
+
+    <!-- Evolution Charts -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    Fitness Evolution
+                </h3>
+                <canvas id="fitnessChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area text-success"></i>
+                    Accuracy Progression
+                </h3>
+                <canvas id="accuracyChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-bar text-warning"></i>
+                    Feature Selection Trend
+                </h3>
+                <canvas id="featuresChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-pie text-info"></i>
+                    Feature Distribution
+                </h3>
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="content-section text-center mt-4">
+        <h3 class="mb-4">
+            <i class="fas fa-download text-primary me-2"></i>
+            Export Results
+        </h3>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <button class="btn-research btn-research-primary" id="exportJSON">
+                <i class="fas fa-file-code me-2"></i>
+                Download JSON
+            </button>
+            <button class="btn-research btn-research-secondary" id="exportCSV">
+                <i class="fas fa-file-csv me-2"></i>
+                Download CSV
+            </button>
+            <button class="btn-research btn-research-outline" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>
+                Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- New Experiment -->
+    <div class="text-center mt-5 mb-5">
+        <a href="/upload" class="btn-research btn-research-outline" style="font-size: 1.1rem; padding: 0.875rem 2rem;">
+            <i class="fas fa-plus-circle me-2"></i>
+            Start New Experiment
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Retrieve results from sessionStorage
+    const resultsData = sessionStorage.getItem('gaResults');
+    
+    if (!resultsData) {
+        alert('No results available. Please run an experiment first.');
+        window.location.href = '/upload';
+        return;
+    }
+
+    const results = JSON.parse(resultsData);
+    
+    // Display key metrics
+    $('#fitnessScore').text(results.fitness_score.toFixed(4));
+    $('#accuracyScore').text((results.accuracy * 100).toFixed(2) + '%');
+    $('#featuresSelected').text(results.n_selected_features + '/' + results.n_total_features);
+    $('#reductionPercent').text(results.feature_reduction_percent.toFixed(1) + '%');
+    
+    // Display selected features
+    const featuresList = $('#selectedFeaturesList');
+    results.selected_features.forEach(feature => {
+        featuresList.append(`<span class="feature-badge">${feature}</span>`);
+    });
+    
+    // Create charts
+    createFitnessChart(results.generation_history);
+    createAccuracyChart(results.generation_history);
+    createFeaturesChart(results.generation_history);
+    createDistributionChart(results);
+    
+    // Export functions
+    $('#exportJSON').click(function() {
+        downloadJSON(results);
+    });
+    
+    $('#exportCSV').click(function() {
+        downloadCSV(results);
+    });
+});
+
+function createFitnessChart(history) {
+    const ctx = document.getElementById('fitnessChart').getContext('2d');
+    const generations = Array.from({length: history.best_fitness.length}, (_, i) => i);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: generations,
+            datasets: [
+                {
+                    label: 'Best Fitness',
+                    data: history.best_fitness,
+                    borderColor: '#1a56db',
+                    backgroundColor: 'rgba(26, 86, 219, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Average Fitness',
+                    data: history.avg_fitness,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1
+                }
+            }
+        }
+    });
+}
+
+function createAccuracyChart(history) {
+    const ctx = document.getElementById('accuracyChart').getContext('2d');
+    const generations = Array.from({length: history.best_accuracy.length}, (_, i) => i);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: generations,
+            datasets: [{
+                label: 'Best Accuracy',
+                data: history.best_accuracy,
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.2)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1
+                }
+            }
+        }
+    });
+}
+
+function createFeaturesChart(history) {
+    const ctx = document.getElementById('featuresChart').getContext('2d');
+    const generations = Array.from({length: history.avg_features.length}, (_, i) => i);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: generations.filter((_, i) => i % 5 === 0), // Show every 5th generation
+            datasets: [{
+                label: 'Average Features Selected',
+                data: history.avg_features.filter((_, i) => i % 5 === 0),
+                backgroundColor: 'rgba(217, 119, 6, 0.7)',
+                borderColor: '#d97706',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function createDistributionChart(results) {
+    const ctx = document.getElementById('distributionChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Selected Features', 'Excluded Features'],
+            datasets: [{
+                data: [
+                    results.n_selected_features,
+                    results.n_total_features - results.n_selected_features
+                ],
+                backgroundColor: [
+                    'rgba(26, 86, 219, 0.8)',
+                    'rgba(229, 231, 235, 0.8)'
+                ],
+                borderColor: [
+                    '#1a56db',
+                    '#e5e7eb'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+}
+
+function downloadJSON(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ga_results.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function downloadCSV(data) {
+    let csv = 'Selected Feature\n';
+    data.selected_features.forEach(feature => {
+        csv += feature + '\n';
+    });
+    
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'selected_features.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}
+

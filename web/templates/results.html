@@ -1,0 +1,423 @@
+{% extends "base_cyber.html" %}
+
+{% block title %}Results - GA Feature Selection{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 15px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .metric-box {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        margin: 10px 0;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    
+    .feature-list {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .feature-badge {
+        display: inline-block;
+        background: #4a90e2;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin: 5px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <h2 class="mb-4">
+        <i class="fas fa-chart-line text-primary"></i> Analysis Results
+    </h2>
+
+    <!-- Summary Section -->
+    <div class="result-card mb-4">
+        <h3 class="mb-4"><i class="fas fa-trophy"></i> GA Optimization Results</h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="metric-box">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <div class="metric-value" id="selectedFeaturesCount">-</div>
+                    <p class="mb-0">Selected Features</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-box">
+                    <i class="fas fa-percentage fa-2x mb-2"></i>
+                    <div class="metric-value" id="accuracyValue">-</div>
+                    <p class="mb-0">Accuracy</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-box">
+                    <i class="fas fa-compress-arrows-alt fa-2x mb-2"></i>
+                    <div class="metric-value" id="reductionRate">-</div>
+                    <p class="mb-0">Reduction Rate</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-box">
+                    <i class="fas fa-sync fa-2x mb-2"></i>
+                    <div class="metric-value" id="generationsRun">-</div>
+                    <p class="mb-0">Generations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Features Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h4><i class="fas fa-list-check text-primary"></i> Selected Features</h4>
+                <p class="text-muted">Features identified as most important by the genetic algorithm</p>
+                <div class="feature-list" id="featureList">
+                    <p class="text-center text-muted">No results yet. Please run the genetic algorithm first.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Convergence Chart -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h4><i class="fas fa-chart-area text-primary"></i> Fitness Evolution</h4>
+                <p class="text-muted">How fitness improved across generations</p>
+                <canvas id="convergenceChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="feature-card">
+                <h4><i class="fas fa-tachometer-alt text-primary"></i> Performance Metrics</h4>
+                <table class="table table-hover" id="metricsTable">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>All Features</th>
+                            <th>GA Selected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Accuracy</td>
+                            <td id="allFeaturesAcc">-</td>
+                            <td id="gaAcc">-</td>
+                        </tr>
+                        <tr>
+                            <td>Precision</td>
+                            <td id="allFeaturesPre">-</td>
+                            <td id="gaPre">-</td>
+                        </tr>
+                        <tr>
+                            <td>Recall</td>
+                            <td id="allFeaturesRec">-</td>
+                            <td id="gaRec">-</td>
+                        </tr>
+                        <tr>
+                            <td>F1-Score</td>
+                            <td id="allFeaturesF1">-</td>
+                            <td id="gaF1">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="feature-card">
+                <h4><i class="fas fa-chart-pie text-primary"></i> Feature Distribution</h4>
+                <canvas id="featureDistChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-success btn-lg me-2" id="exportBtn">
+                <i class="fas fa-download"></i> Export Results
+            </button>
+            <button class="btn btn-primary btn-lg me-2" id="compareBtn" onclick="location.href='/comparison'">
+                <i class="fas fa-balance-scale"></i> Compare Methods
+            </button>
+            <button class="btn btn-secondary btn-lg" id="newAnalysisBtn" onclick="location.href='/upload'">
+                <i class="fas fa-plus"></i> New Analysis
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Sample data - will be replaced with actual GA results
+let convergenceChart, featureDistChart;
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', () => {
+    initializeCharts();
+    loadResults();
+});
+
+function initializeCharts() {
+    // Convergence Chart
+    const ctxConv = document.getElementById('convergenceChart').getContext('2d');
+    convergenceChart = new Chart(ctxConv, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Best Fitness',
+                data: [],
+                borderColor: '#4a90e2',
+                backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Average Fitness',
+                data: [],
+                borderColor: '#50c878',
+                backgroundColor: 'rgba(80, 200, 120, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Fitness Progress Across Generations'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Fitness Score'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Generation'
+                    }
+                }
+            }
+        }
+    });
+
+    // Feature Distribution Chart
+    const ctxDist = document.getElementById('featureDistChart').getContext('2d');
+    featureDistChart = new Chart(ctxDist, {
+        type: 'doughnut',
+        data: {
+            labels: ['Selected Features', 'Excluded Features'],
+            datasets: [{
+                data: [0, 0],
+                backgroundColor: ['#4a90e2', '#e0e0e0'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+}
+
+function loadResults() {
+    // Load results from sessionStorage
+    const gaResultsStr = sessionStorage.getItem('gaResults');
+    const datasetInfoStr = sessionStorage.getItem('datasetInfo');
+    
+    if (!gaResultsStr) {
+        showNoResultsMessage();
+        return;
+    }
+    
+    try {
+        const results = JSON.parse(gaResultsStr);
+        const datasetInfo = datasetInfoStr ? JSON.parse(datasetInfoStr) : null;
+        
+        displayResults(results, datasetInfo);
+    } catch (error) {
+        console.error('Error loading results:', error);
+        showNoResultsMessage();
+    }
+}
+
+function hasResults() {
+    return sessionStorage.getItem('gaResults') !== null;
+}
+
+function displayResults(results, datasetInfo) {
+    // Update summary metrics
+    document.getElementById('selectedFeaturesCount').textContent = results.n_selected_features;
+    document.getElementById('accuracyValue').textContent = (results.accuracy * 100).toFixed(1) + '%';
+    document.getElementById('reductionRate').textContent = results.feature_reduction_percent.toFixed(1) + '%';
+    document.getElementById('generationsRun').textContent = results.generation_history.best_fitness.length;
+    
+    // Display selected features
+    const featureList = document.getElementById('featureList');
+    let featuresHtml = '<div class="row">';
+    results.selected_features.forEach((feature, index) => {
+        featuresHtml += `<div class="col-md-6 mb-2"><span class="feature-badge">${index + 1}. ${feature}</span></div>`;
+    });
+    featuresHtml += '</div>';
+    featureList.innerHTML = featuresHtml;
+    
+    // Update convergence chart
+    updateConvergenceChart(results.generation_history);
+    
+    // Update feature distribution chart
+    updateFeatureDistChart(results.n_selected_features, results.n_total_features);
+    
+    // Update performance metrics table
+    document.getElementById('gaAcc').textContent = (results.accuracy * 100).toFixed(2) + '%';
+    document.getElementById('gaPre').textContent = (results.accuracy * 100).toFixed(2) + '%';
+    document.getElementById('gaRec').textContent = (results.accuracy * 100).toFixed(2) + '%';
+    document.getElementById('gaF1').textContent = (results.accuracy * 100).toFixed(2) + '%';
+    
+    // Placeholder for all features comparison
+    document.getElementById('allFeaturesAcc').textContent = '(baseline)';
+    document.getElementById('allFeaturesPre').textContent = '(baseline)';
+    document.getElementById('allFeaturesRec').textContent = '(baseline)';
+    document.getElementById('allFeaturesF1').textContent = '(baseline)';
+}
+
+function updateConvergenceChart(history) {
+    const generations = Array.from({length: history.best_fitness.length}, (_, i) => i);
+    
+    convergenceChart.data.labels = generations;
+    convergenceChart.data.datasets[0].data = history.best_fitness;
+    convergenceChart.data.datasets[1].data = history.avg_fitness;
+    convergenceChart.update();
+}
+
+function updateFeatureDistChart(selected, total) {
+    const excluded = total - selected;
+    
+    featureDistChart.data.datasets[0].data = [selected, excluded];
+    featureDistChart.update();
+}
+
+function showNoResultsMessage() {
+    const message = `
+        <div class="text-center p-5">
+            <i class="fas fa-info-circle fa-4x text-muted mb-3"></i>
+            <h4>No Results Yet</h4>
+            <p class="text-muted">Please upload a dataset and run the genetic algorithm first.</p>
+            <a href="/upload" class="btn btn-primary mt-3">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+        </div>
+    `;
+    document.querySelector('.main-container').innerHTML += message;
+}
+
+// Export results
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const gaResultsStr = sessionStorage.getItem('gaResults');
+    
+    if (!gaResultsStr) {
+        alert('No results to export');
+        return;
+    }
+    
+    try {
+        const results = JSON.parse(gaResultsStr);
+        
+        // Create CSV content
+        let csv = 'Genetic Algorithm Feature Selection Results\n\n';
+        csv += 'Summary Metrics\n';
+        csv += 'Metric,Value\n';
+        csv += `Selected Features,${results.n_selected_features}\n`;
+        csv += `Total Features,${results.n_total_features}\n`;
+        csv += `Accuracy,${(results.accuracy * 100).toFixed(2)}%\n`;
+        csv += `Fitness Score,${results.fitness_score.toFixed(4)}\n`;
+        csv += `Feature Reduction,${results.feature_reduction_percent.toFixed(2)}%\n`;
+        csv += '\n\nSelected Features\n';
+        csv += 'Index,Feature Name\n';
+        results.selected_features.forEach((feature, index) => {
+            csv += `${index + 1},${feature}\n`;
+        });
+        csv += '\n\nFitness History\n';
+        csv += 'Generation,Best Fitness,Average Fitness,Worst Fitness,Best Accuracy,Avg Features\n';
+        for (let i = 0; i < results.generation_history.best_fitness.length; i++) {
+            csv += `${i},${results.generation_history.best_fitness[i].toFixed(4)},`;
+            csv += `${results.generation_history.avg_fitness[i].toFixed(4)},`;
+            csv += `${results.generation_history.worst_fitness[i].toFixed(4)},`;
+            csv += `${results.generation_history.best_accuracy[i].toFixed(4)},`;
+            csv += `${results.generation_history.avg_features[i].toFixed(2)}\n`;
+        }
+        
+        // Download CSV
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `ga_results_${new Date().getTime()}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show success message
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success alert-dismissible fade show';
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '10000';
+        notification.innerHTML = `
+            Results exported successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Error exporting results: ' + error.message);
+    }
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,897 @@
+{% extends "base_cyber.html" %}
+
+{% block title %}Upload Data - GA Feature Selection{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-area {
+        border: 3px dashed #4a90e2;
+        border-radius: 15px;
+        padding: 50px;
+        text-align: center;
+        background: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .upload-area:hover {
+        background: #e9ecef;
+        border-color: #357abd;
+    }
+    
+    .upload-area.dragover {
+        background: #d4e4f7;
+        border-color: #357abd;
+    }
+    
+    .file-info {
+        background: #e9f5ff;
+        border-left: 4px solid #4a90e2;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+    }
+    
+    .parameter-control {
+        margin: 15px 0;
+    }
+    
+    .sample-dataset-card {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .sample-dataset-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <h2 class="mb-4">
+        <i class="fas fa-upload text-primary"></i> Upload Your Dataset
+    </h2>
+
+    <!-- File Upload Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                <h4>Drag & Drop Your File Here</h4>
+                <p class="text-muted">or click to browse</p>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                <p class="text-muted mt-3">
+                    <small>Supported formats: CSV, Excel (.xlsx, .xls)</small>
+                </p>
+            </div>
+            
+            <div id="fileInfoSection" style="display: none;">
+                <div class="file-info">
+                    <h5><i class="fas fa-file-alt"></i> File Information</h5>
+                    <div id="fileInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Datasets Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h4><i class="fas fa-database text-primary"></i> Or Choose a Sample Dataset</h4>
+            <p class="text-muted">Click on any dataset below to use it for testing</p>
+        </div>
+    </div>
+
+    <div class="row" id="sampleDatasets">
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="iris.csv">
+                <h5><i class="fas fa-leaf text-success"></i> Iris Dataset</h5>
+                <p><strong>Features:</strong> 4 | <strong>Samples:</strong> 150</p>
+                <p class="text-muted small">Classic dataset for quick testing</p>
+                <span class="badge bg-success">Easy</span>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="breast_cancer.csv">
+                <h5><i class="fas fa-heartbeat text-danger"></i> Breast Cancer</h5>
+                <p><strong>Features:</strong> 30 | <strong>Samples:</strong> 569</p>
+                <p class="text-muted small">Great for feature reduction demo</p>
+                <span class="badge bg-warning">Medium</span>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="wine.csv">
+                <h5><i class="fas fa-wine-glass text-purple"></i> Wine Dataset</h5>
+                <p><strong>Features:</strong> 13 | <strong>Samples:</strong> 178</p>
+                <p class="text-muted small">Balanced dataset for general testing</p>
+                <span class="badge bg-warning">Medium</span>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="synthetic_high_dim.csv">
+                <h5><i class="fas fa-project-diagram text-info"></i> High-Dimensional</h5>
+                <p><strong>Features:</strong> 50 | <strong>Samples:</strong> 1000</p>
+                <p class="text-muted small">Challenge with many features</p>
+                <span class="badge bg-danger">Hard</span>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="synthetic_multiclass.csv">
+                <h5><i class="fas fa-layer-group text-primary"></i> Multiclass</h5>
+                <p><strong>Features:</strong> 20 | <strong>Samples:</strong> 800</p>
+                <p class="text-muted small">Multiple class classification</p>
+                <span class="badge bg-warning">Medium</span>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="feature-card sample-dataset-card" data-file="small_test.csv">
+                <h5><i class="fas fa-bolt text-warning"></i> Quick Test</h5>
+                <p><strong>Features:</strong> 5 | <strong>Samples:</strong> 100</p>
+                <p class="text-muted small">Fast testing & debugging</p>
+                <span class="badge bg-success">Easy</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- GA Parameters Section -->
+    <div class="row mt-5" id="parametersSection" style="display: none;">
+        <div class="col-md-12">
+            <h4><i class="fas fa-sliders-h text-primary"></i> Genetic Algorithm Parameters</h4>
+            <p class="text-muted">Adjust the parameters for the genetic algorithm</p>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="parameter-control">
+                <label for="populationSize" class="form-label">
+                    <i class="fas fa-users"></i> Population Size: <span id="populationValue">20</span>
+                </label>
+                <input type="range" class="form-range" id="populationSize" min="10" max="100" value="20" step="5">
+                <small class="text-muted">Quick test: 10-20 | Standard: 30-50 | Accurate: 50+</small>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="parameter-control">
+                <label for="generations" class="form-label">
+                    <i class="fas fa-sync"></i> Generations: <span id="generationsValue">30</span>
+                </label>
+                <input type="range" class="form-range" id="generations" min="10" max="200" value="30" step="10">
+                <small class="text-muted">Quick test: 10-30 | Standard: 50-100 | Thorough: 100+</small>
+            </div>
+        </div>
+        
+        <div class="col-md-12">
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-clock"></i> <strong>Estimated Time:</strong> 
+                <span id="estimatedTime">~1-2 minutes</span>
+                <span class="text-muted">(depends on dataset size and parameters)</span>
+            </div>
+            
+            <div class="text-center mb-3">
+                <strong>Quick Presets:</strong>
+                <button class="btn btn-sm btn-success ms-2" onclick="setQuickTest()">
+                    <i class="fas fa-bolt"></i> Super Fast (10s-30s)
+                </button>
+                <button class="btn btn-sm btn-primary ms-2" onclick="setBalanced()">
+                    <i class="fas fa-balance-scale-right"></i> Balanced (1-2 min)
+                </button>
+                <button class="btn btn-sm btn-warning ms-2" onclick="setAccurate()">
+                    <i class="fas fa-bullseye"></i> Accurate (3-5 min)
+                </button>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="parameter-control">
+                <label for="crossoverRate" class="form-label">
+                    <i class="fas fa-exchange-alt"></i> Crossover Rate: <span id="crossoverValue">0.8</span>
+                </label>
+                <input type="range" class="form-range" id="crossoverRate" min="0.5" max="1.0" value="0.8" step="0.05">
+                <small class="text-muted">Probability of crossover between parents</small>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="parameter-control">
+                <label for="mutationRate" class="form-label">
+                    <i class="fas fa-random"></i> Mutation Rate: <span id="mutationValue">0.1</span>
+                </label>
+                <input type="range" class="form-range" id="mutationRate" min="0.01" max="0.3" value="0.1" step="0.01">
+                <small class="text-muted">Probability of random mutation</small>
+            </div>
+        </div>
+        
+        <div class="col-md-12 text-center mt-4">
+            <button id="runGAButton" class="btn btn-primary btn-lg">
+                <i class="fas fa-play"></i> Run Genetic Algorithm
+            </button>
+        </div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="row mt-4" id="progressSection" style="display: none;">
+        <div class="col-md-12">
+            <div class="feature-card">
+                <h5><i class="fas fa-spinner fa-spin"></i> Processing...</h5>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                         style="width: 0%" id="progressBar"></div>
+                </div>
+                <p class="text-muted mt-2" id="progressText">Initializing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row mt-5" id="resultsSection" style="display: none;">
+        <div class="col-md-12">
+            <h3 class="mb-4"><i class="fas fa-chart-line text-success"></i> Results</h3>
+            
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="feature-card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h2 id="resultFeaturesCount">-</h2>
+                        <p class="mb-0">Selected Features</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                        <i class="fas fa-percentage fa-2x mb-2"></i>
+                        <h2 id="resultAccuracy">-</h2>
+                        <p class="mb-0">Accuracy</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                        <i class="fas fa-compress-arrows-alt fa-2x mb-2"></i>
+                        <h2 id="resultReduction">-</h2>
+                        <p class="mb-0">Feature Reduction</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="feature-card text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                        <i class="fas fa-trophy fa-2x mb-2"></i>
+                        <h2 id="resultFitness">-</h2>
+                        <p class="mb-0">Fitness Score</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Features -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="feature-card">
+                        <h5><i class="fas fa-list-check text-primary"></i> Selected Features</h5>
+                        <div id="selectedFeaturesList" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evolution Chart -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="feature-card">
+                        <h5><i class="fas fa-chart-area text-primary"></i> Fitness Evolution</h5>
+                        <canvas id="evolutionChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Section -->
+    <div class="row mt-5" id="comparisonSection" style="display: none;">
+        <div class="col-md-12">
+            <h3 class="mb-4"><i class="fas fa-balance-scale text-warning"></i> Method Comparison</h3>
+            
+            <div class="text-center mb-4">
+                <button class="btn btn-primary btn-lg" id="runComparisonBtn">
+                    <i class="fas fa-play"></i> Run Comparison with Traditional Methods
+                </button>
+            </div>
+
+            <!-- Comparison Results -->
+            <div id="comparisonResults" style="display: none;">
+                <div class="feature-card">
+                    <h5><i class="fas fa-table text-primary"></i> Performance Comparison</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Features</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1-Score</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        Click "Run Comparison" to see results
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="feature-card mt-4">
+                    <h5><i class="fas fa-chart-bar text-primary"></i> Visual Comparison</h5>
+                    <canvas id="comparisonChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+// Upload area handling
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const fileInfoSection = document.getElementById('fileInfoSection');
+const parametersSection = document.getElementById('parametersSection');
+const progressSection = document.getElementById('progressSection');
+const progressText = document.getElementById('progressText');
+
+// Notification helper function
+function showNotification(message, type = 'info') {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                       type === 'danger' ? 'alert-danger' : 
+                       type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '10000';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 5000);
+}
+
+// Click to upload
+uploadArea.addEventListener('click', () => fileInput.click());
+
+// File selection
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+// Drag and drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+
+// Handle file upload
+function handleFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            uploadedFile = data;
+            displayFileInfo(data);
+            parametersSection.style.display = 'block';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Upload failed: ' + error);
+    });
+}
+
+// Display file information
+function displayFileInfo(data) {
+    const info = `
+        <p><strong>Filename:</strong> ${data.filename}</p>
+        <p><strong>Rows:</strong> ${data.rows} | <strong>Columns:</strong> ${data.columns}</p>
+        <p><strong>Features:</strong> ${data.features.join(', ')}</p>
+    `;
+    document.getElementById('fileInfo').innerHTML = info;
+    fileInfoSection.style.display = 'block';
+}
+
+// Sample dataset selection
+document.querySelectorAll('.sample-dataset-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const filename = this.dataset.file;
+        loadSampleDataset(filename);
+    });
+});
+
+function loadSampleDataset(filename) {
+    const filepath = `sample_datasets/${filename}`;
+    
+    // Simulate file info display for sample dataset
+    const sampleInfo = {
+        'iris.csv': { rows: 150, columns: 5, features: ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)', 'target'], target: 'target' },
+        'breast_cancer.csv': { rows: 569, columns: 31, features: ['mean_radius', 'mean_texture', 'mean_perimeter', '...30 features...', 'target'], target: 'target' },
+        'wine.csv': { rows: 178, columns: 14, features: ['alcohol', 'malic_acid', 'ash', '...13 features...', 'target'], target: 'target' },
+        'synthetic_high_dim.csv': { rows: 1000, columns: 51, features: Array.from({length: 50}, (_, i) => `feature_${i}`).concat(['target']), target: 'target' },
+        'synthetic_multiclass.csv': { rows: 800, columns: 21, features: Array.from({length: 20}, (_, i) => `feature_${i}`).concat(['target']), target: 'target' },
+        'small_test.csv': { rows: 100, columns: 6, features: ['age', 'income', 'score', 'category', 'flag', 'target'], target: 'target' }
+    };
+    
+    const info = sampleInfo[filename];
+    if (info) {
+        uploadedFile = {
+            filename: filename,
+            filepath: filepath,
+            rows: info.rows,
+            columns: info.columns,
+            features: info.features,
+            target_column: info.target,
+            success: true
+        };
+        
+        const displayInfo = `
+            <p><strong>Filename:</strong> ${filename}</p>
+            <p><strong>Rows:</strong> ${info.rows} | <strong>Columns:</strong> ${info.columns}</p>
+            <p><strong>Features:</strong> ${info.features.slice(0, 5).join(', ')}${info.features.length > 5 ? ' ...' : ''}</p>
+        `;
+        document.getElementById('fileInfo').innerHTML = displayInfo;
+        fileInfoSection.style.display = 'block';
+        parametersSection.style.display = 'block';
+        
+        showNotification(`Sample dataset "${filename}" loaded successfully!`, 'success');
+        
+        // Scroll to parameters section
+        parametersSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Function to estimate execution time
+function updateEstimatedTime() {
+    const popSize = parseInt(document.getElementById('populationSize').value);
+    const gens = parseInt(document.getElementById('generations').value);
+    
+    // Rough estimation: (popSize * gens) / 100 seconds
+    const estimatedSeconds = (popSize * gens) / 100;
+    
+    let timeText;
+    if (estimatedSeconds < 60) {
+        timeText = `~${Math.ceil(estimatedSeconds)} seconds`;
+    } else if (estimatedSeconds < 300) {
+        timeText = `~${Math.ceil(estimatedSeconds / 60)} minutes`;
+    } else {
+        timeText = `~${Math.ceil(estimatedSeconds / 60)} minutes (Consider reducing parameters!)`;
+    }
+    
+    document.getElementById('estimatedTime').textContent = timeText;
+}
+
+// Parameter sliders with time estimation
+document.getElementById('populationSize').addEventListener('input', (e) => {
+    document.getElementById('populationValue').textContent = e.target.value;
+    updateEstimatedTime();
+});
+
+document.getElementById('generations').addEventListener('input', (e) => {
+    document.getElementById('generationsValue').textContent = e.target.value;
+    updateEstimatedTime();
+});
+
+document.getElementById('crossoverRate').addEventListener('input', (e) => {
+    document.getElementById('crossoverValue').textContent = e.target.value;
+});
+
+document.getElementById('mutationRate').addEventListener('input', (e) => {
+    document.getElementById('mutationValue').textContent = e.target.value;
+});
+
+// Initialize estimated time
+updateEstimatedTime();
+
+// Quick preset functions
+function setQuickTest() {
+    document.getElementById('populationSize').value = 10;
+    document.getElementById('populationValue').textContent = '10';
+    document.getElementById('generations').value = 10;
+    document.getElementById('generationsValue').textContent = '10';
+    updateEstimatedTime();
+    showNotification('Super Fast preset applied! Best for quick testing.', 'info');
+}
+
+function setBalanced() {
+    document.getElementById('populationSize').value = 20;
+    document.getElementById('populationValue').textContent = '20';
+    document.getElementById('generations').value = 30;
+    document.getElementById('generationsValue').textContent = '30';
+    updateEstimatedTime();
+    showNotification('Balanced preset applied! Good trade-off.', 'info');
+}
+
+function setAccurate() {
+    document.getElementById('populationSize').value = 40;
+    document.getElementById('populationValue').textContent = '40';
+    document.getElementById('generations').value = 60;
+    document.getElementById('generationsValue').textContent = '60';
+    updateEstimatedTime();
+    showNotification('Accurate preset applied! Better results but slower.', 'info');
+}
+
+// Run GA button
+document.getElementById('runGAButton').addEventListener('click', async () => {
+    if (!uploadedFile) {
+        showNotification('Please upload a file or select a sample dataset first!', 'danger');
+        return;
+    }
+    
+    // Get GA parameters
+    const params = {
+        filepath: uploadedFile.filepath,
+        population_size: parseInt(document.getElementById('populationSize').value),
+        generations: parseInt(document.getElementById('generations').value),
+        crossover_rate: parseFloat(document.getElementById('crossoverRate').value),
+        mutation_rate: parseFloat(document.getElementById('mutationRate').value),
+        model_type: 'random_forest',
+        target_column: uploadedFile.target_column || 'target'  // Use dataset-specific target column
+    };
+    
+    // Show progress
+    progressSection.style.display = 'block';
+    progressText.textContent = 'Initializing genetic algorithm...';
+    let progress = 0;
+    
+    // Simulate progress animation
+    const progressInterval = setInterval(() => {
+        progress += 2;
+        if (progress >= 90) {
+            clearInterval(progressInterval);
+        }
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        if (progress < 30) {
+            progressText.textContent = 'Initializing population...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Evolving generations...';
+        } else if (progress < 90) {
+            progressText.textContent = 'Evaluating fitness...';
+        }
+    }, 100);
+    
+    // Run GA
+    const result = await GAApp.runGeneticAlgorithm(params);
+    
+    clearInterval(progressInterval);
+    document.getElementById('progressBar').style.width = '100%';
+    progressText.textContent = 'Completed!';
+    
+    if (result && result.success) {
+        // Store results in sessionStorage
+        sessionStorage.setItem('gaResults', JSON.stringify(result));
+        sessionStorage.setItem('datasetInfo', JSON.stringify(uploadedFile));
+        
+        // Hide progress and show results section
+        progressSection.style.display = 'none';
+        
+        // Display results on the same page
+        displayResultsOnPage(result);
+        
+        // Show comparison button
+        document.getElementById('comparisonSection').style.display = 'block';
+    } else {
+        progressSection.style.display = 'none';
+    }
+});
+
+// Display results on the same page
+let evolutionChart = null;
+let comparisonChart = null;
+
+function displayResultsOnPage(results) {
+    // Show results section
+    document.getElementById('resultsSection').style.display = 'block';
+    
+    // Scroll to results
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    
+    // Update summary metrics
+    document.getElementById('resultFeaturesCount').textContent = results.n_selected_features;
+    document.getElementById('resultAccuracy').textContent = (results.accuracy * 100).toFixed(1) + '%';
+    document.getElementById('resultReduction').textContent = results.feature_reduction_percent.toFixed(1) + '%';
+    document.getElementById('resultFitness').textContent = results.fitness_score.toFixed(3);
+    
+    // Display selected features as badges
+    const featuresList = document.getElementById('selectedFeaturesList');
+    let featuresHtml = '';
+    results.selected_features.forEach((feature, index) => {
+        featuresHtml += `<span class="feature-badge">${index + 1}. ${feature}</span>`;
+    });
+    featuresList.innerHTML = featuresHtml;
+    
+    // Create evolution chart
+    createEvolutionChart(results.generation_history);
+}
+
+function createEvolutionChart(history) {
+    const ctx = document.getElementById('evolutionChart').getContext('2d');
+    
+    // Destroy existing chart if any
+    if (evolutionChart) {
+        evolutionChart.destroy();
+    }
+    
+    const generations = Array.from({length: history.best_fitness.length}, (_, i) => i);
+    
+    evolutionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: generations,
+            datasets: [{
+                label: 'Best Fitness',
+                data: history.best_fitness,
+                borderColor: '#4a90e2',
+                backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }, {
+                label: 'Average Fitness',
+                data: history.avg_fitness,
+                borderColor: '#50c878',
+                backgroundColor: 'rgba(80, 200, 120, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Fitness Progress Across Generations'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Fitness Score'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Generation'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Run Comparison Button
+document.getElementById('runComparisonBtn').addEventListener('click', async () => {
+    const gaResultsStr = sessionStorage.getItem('gaResults');
+    const datasetInfoStr = sessionStorage.getItem('datasetInfo');
+    
+    if (!gaResultsStr || !datasetInfoStr) {
+        showNotification('No results available for comparison', 'danger');
+        return;
+    }
+    
+    const gaResults = JSON.parse(gaResultsStr);
+    const datasetInfo = JSON.parse(datasetInfoStr);
+    
+    // Show loading
+    document.getElementById('comparisonTableBody').innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Running comparison analysis...
+            </td>
+        </tr>
+    `;
+    
+    document.getElementById('comparisonResults').style.display = 'block';
+    document.getElementById('comparisonResults').scrollIntoView({ behavior: 'smooth' });
+    
+    // Prepare request
+    const requestData = {
+        filepath: datasetInfo.filepath,
+        target_column: datasetInfo.target_column || 'target',
+        k_features: gaResults.n_selected_features
+    };
+    
+    try {
+        const response = await fetch('/api/comparison', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayComparisonResults(data.traditional_results, gaResults);
+            showNotification('Comparison completed successfully!', 'success');
+        } else {
+            document.getElementById('comparisonTableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger">
+                        Error: ${data.error}
+                    </td>
+                </tr>
+            `;
+        }
+    } catch (error) {
+        document.getElementById('comparisonTableBody').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-danger">
+                    Error: ${error.message}
+                </td>
+            </tr>
+        `;
+    }
+});
+
+function displayComparisonResults(traditionalResults, gaResults) {
+    let tableHtml = '';
+    
+    // Add GA results first
+    tableHtml += `
+        <tr class="table-success">
+            <td><strong>Genetic Algorithm</strong></td>
+            <td>${gaResults.n_selected_features}</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>~${(gaResults.generation_history.best_fitness.length * 2).toFixed(1)}s</td>
+        </tr>
+    `;
+    
+    // Add traditional methods
+    const methodNames = {
+        'chi_square': 'Chi-Square Test',
+        'anova_f': 'ANOVA F-Test',
+        'mutual_info': 'Mutual Information',
+        'rf_importance': 'Random Forest Importance'
+    };
+    
+    for (const [key, method] of Object.entries(traditionalResults)) {
+        if (method.error) {
+            tableHtml += `
+                <tr>
+                    <td>${methodNames[key] || key}</td>
+                    <td colspan="6" class="text-warning">Skipped</td>
+                </tr>
+            `;
+        } else {
+            tableHtml += `
+                <tr>
+                    <td>${methodNames[key] || key}</td>
+                    <td>${method.n_features}</td>
+                    <td>${(method.accuracy * 100).toFixed(2)}%</td>
+                    <td>${(method.precision * 100).toFixed(2)}%</td>
+                    <td>${(method.recall * 100).toFixed(2)}%</td>
+                    <td>${(method.f1_score * 100).toFixed(2)}%</td>
+                    <td>${method.time.toFixed(2)}s</td>
+                </tr>
+            `;
+        }
+    }
+    
+    document.getElementById('comparisonTableBody').innerHTML = tableHtml;
+    
+    // Create comparison chart
+    createComparisonChart(traditionalResults, gaResults);
+}
+
+function createComparisonChart(traditionalResults, gaResults) {
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    
+    // Destroy existing chart if any
+    if (comparisonChart) {
+        comparisonChart.destroy();
+    }
+    
+    const labels = ['Genetic Algorithm'];
+    const accuracyData = [gaResults.accuracy];
+    const f1Data = [gaResults.accuracy];
+    
+    const methodNames = {
+        'chi_square': 'Chi-Square',
+        'anova_f': 'ANOVA',
+        'mutual_info': 'Mutual Info',
+        'rf_importance': 'Random Forest'
+    };
+    
+    for (const [key, method] of Object.entries(traditionalResults)) {
+        if (!method.error) {
+            labels.push(methodNames[key] || key);
+            accuracyData.push(method.accuracy);
+            f1Data.push(method.f1_score);
+        }
+    }
+    
+    comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Accuracy',
+                data: accuracyData,
+                backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                borderColor: '#4a90e2',
+                borderWidth: 2
+            }, {
+                label: 'F1-Score',
+                data: f1Data,
+                backgroundColor: 'rgba(80, 200, 120, 0.7)',
+                borderColor: '#50c878',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Performance Metrics Comparison'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
